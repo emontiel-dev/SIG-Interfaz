@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración de Producto</title>
+    <style>
+        /* --- VARIABLES DE COLOR (Basadas en tu diseño) --- */
+        :root {
+            --color-primario: #ffffff;
+            --color-secundario: #f8f9fa;
+            --color-texto-principal: #212529;
+            --color-texto-secundario: #6c757d;
+            --color-borde: #dee2e6;
+            --color-amarillo-polleria: #ffc107;
+            --color-amarillo-polleria-hover: #e0a800;
+            --color-sombra: rgba(0, 0, 0, 0.15);
+            --espacio-m: 16px;
+            --espacio-l: 24px;
+            --radio-borde: 12px;
+        }
+
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #e9ecef;
+            margin: 0;
+            padding: var(--espacio-l);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        /* --- ESTRUCTURA DEL MODAL --- */
+        /* El fondo oscuro semi-transparente */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        /* El contenedor blanco del modal */
+        .modal-content {
+            background-color: var(--color-primario);
+            border-radius: var(--radio-borde);
+            box-shadow: 0 4px 20px var(--color-sombra);
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* --- CABECERA DEL MODAL --- */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--espacio-m) var(--espacio-l);
+            border-bottom: 1px solid var(--color-borde);
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            color: var(--color-texto-principal);
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--color-texto-secundario);
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* --- CUERPO DEL MODAL (CON SCROLL) --- */
+        .modal-body {
+            padding: var(--espacio-l);
+            overflow-y: auto; /* Mantener esto por si el contenido excede en pantallas muy pequeñas */
+            max-height: 85vh; /* Ajustar ligeramente la altura máxima para pantallas más cortas */
+        }
+
+        /* --- PIE DE PÁGINA DEL MODAL --- */
+        .modal-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--espacio-m);
+            padding: var(--espacio-m) var(--espacio-l);
+            border-top: 1px solid var(--color-borde);
+            background-color: var(--color-secundario);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary {
+            background-color: #e9ecef;
+            color: var(--color-texto-principal);
+            border: 1px solid #ced4da;
+        }
+        .btn-secondary:hover {
+            background-color: #dee2e6;
+        }
+
+        .btn-primary {
+            background-color: var(--color-amarillo-polleria);
+            color: var(--color-texto-principal);
+        }
+        .btn-primary:hover {
+            background-color: var(--color-amarillo-polleria-hover);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* --- ELEMENTOS DE FORMULARIO Y PERSONALIZACIÓN --- */
+        .form-group {
+            margin-bottom: var(--espacio-l);
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--color-texto-secundario);
+        }
+
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 1px solid var(--color-borde);
+            border-radius: 8px;
+            box-sizing: border-box; /* Importante para que el padding no afecte el ancho */
+        }
+        
+        /* Contenedor para los inputs de cantidad y costo en línea */
+        .input-group-inline {
+            display: flex; /* Hace que los elementos hijos se coloquen en línea */
+            gap: var(--espacio-m); /* Espacio entre los dos inputs */
+            /* margin-bottom: var(--espacio-l); -- Ya lo maneja el padre personalization-group */
+        }
+
+        .input-group-inline .form-group {
+            flex: 1; /* Permite que cada form-group ocupe el mismo ancho disponible */
+            margin-bottom: 0; /* Elimina el margen inferior individual ya que el padre lo maneja */
+        }
+
+        .price-display {
+            margin-bottom: var(--espacio-l);
+            text-align: left;
+            font-size: 1.1rem;
+        }
+        .price-display strong {
+            font-size: 1.4rem;
+            color: var(--color-texto-principal);
+        }
+
+        /* ESTILOS CLAVE PARA EL EFECTO DE TÍTULO SOBRE EL BORDE */
+        .personalization-group {
+            border: 1px solid var(--color-borde);
+            border-radius: var(--radio-borde);
+            padding: var(--espacio-m);
+            margin-bottom: var(--espacio-l);
+            position: relative; /* Muy importante para posicionar el h4 absolutamente */
+            padding-top: var(--espacio-l); /* Aumenta el padding superior para hacer espacio al título */
+        }
+        /* Ajuste para el último grupo de personalización para eliminar el margen inferior */
+        .modal-body > .personalization-group:last-of-type {
+            margin-bottom: 0;
+        }
+
+
+        .personalization-group h4 {
+            position: absolute; /* Permite posicionar el título fuera del flujo normal */
+            top: -12px; /* Mueve el título hacia arriba, fuera del contenedor */
+            left: var(--espacio-m); /* Alinea el título con el padding izquierdo */
+            background-color: var(--color-primario); /* Fondo blanco para cubrir el borde debajo */
+            padding: 0 8px; /* Espacio a los lados del texto del título */
+            margin: 0; /* Elimina cualquier margen predeterminado */
+            font-size: 1rem;
+            color: var(--color-texto-principal);
+            z-index: 1; /* Asegura que el título esté por encima del borde */
+        }
+
+        /* Estilo para el contenedor de opciones (botones) */
+        .options-container {
+            display: flex;
+            gap: 8px; /* Espacio entre los botones */
+            flex-wrap: wrap; /* Permite que los botones se envuelvan a la siguiente línea si no hay espacio */
+        }
+        
+        .btn-variant {
+            flex-grow: 1; /* Permite que los botones crezcan y ocupen el espacio disponible */
+            text-align: center; /* Centrar el texto en el botón */
+            background-color: var(--color-secundario);
+            color: var(--color-texto-principal);
+            padding: 12px 16px;
+            border: 1px solid var(--color-borde);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease; /* Añadido para transiciones suaves al seleccionar */
+            display: flex; /* Para alinear el icono y el texto/precio */
+            flex-direction: column; /* Etiqueta arriba, precio abajo */
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+        }
+        /* No necesitamos estilos SVG específicos si no usamos iconos SVG */
+        /* .btn-variant svg { ... } */
+        
+        .btn-variant span {
+            display: block; /* Asegura que cada span ocupe su propia línea */
+        }
+
+        .btn-variant span:first-child {
+            font-weight: 600; /* Hace la etiqueta del tipo de precio un poco más negrita */
+            margin-bottom: 2px; /* Pequeño espacio entre la etiqueta y el precio */
+        }
+
+        .btn-variant:hover {
+             background-color: #dee2e6;
+        }
+
+        /* Nuevo estilo para los botones de opción cuando están activos/seleccionados */
+        .btn-variant.active {
+            background-color: var(--color-amarillo-polleria);
+            color: var(--color-texto-principal); /* O si prefieres blanco: white; */
+            border-color: var(--color-amarillo-polleria-hover);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="modal-overlay">
+        <div class="modal-content">
+            
+            <header class="modal-header">
+                <h2 id="modal-product-title">Configurar Producto</h2>
+                <button class="modal-close-btn" title="Cerrar">×</button>
+            </header>
+
+            <main class="modal-body">
+                
+                <!-- Sección de Selección de Producto (PM, PG, MSL, etc.) -->
+                <div class="personalization-group">
+                    <h4>Producto</h4>
+                    <div class="options-container" id="product-options-container" data-selection-type="single">
+                        <!-- Los botones de producto se generarán dinámicamente aquí por JS -->
+                    </div>
+                </div>
+
+                <!-- Sección de Selección de Tipo de Precio -->
+                <div class="personalization-group">
+                    <h4>Tipo de Precio</h4>
+                    <div class="options-container" id="price-options-container" data-selection-type="single">
+                        <!-- Los botones de tipo de precio se generarán dinámicamente aquí por JS -->
+                    </div>
+                </div>
+
+                <!-- Sección de Registro (Cantidad/Costo) - Ahora con estilo bordeado -->
+                <div class="personalization-group">
+                    <h4>Registro</h4>
+                    <div class="input-group-inline">
+                        <div class="form-group">
+                            <label for="modal-quantity">Cantidad (kg)</label>
+                            <input type="number" id="modal-quantity" placeholder="0.00" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label for="modal-cost">Costo ($)</label>
+                            <input type="number" id="modal-cost" placeholder="0.00" step="0.01">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección de Procesamientos (Personalizaciones Dinámicas) -->
+                <div id="procesamientos-section">
+                    <!-- Los grupos de personalización dinámicos se inyectarán aquí por JS -->
+                </div>
+                
+            </main>
+
+            <footer class="modal-footer">
+                <button class="btn btn-secondary">Cancelar</button>
+                <button class="btn btn-primary">Añadir al Pedido</button>
+            </footer>
+
+        </div>
+    </div>
+
+    <script>
+        // --- Modelo de Datos (Extendido según tus indicaciones) ---
+        const productsData = {
+            "pm": {
+                name: "Perniles",
+                displaySymbol: "PM",
+                // Personalizaciones unificadas en una sola sección de "Procesamientos"
+                personalizations: [
+                    {
+                        key: "all_procesamientos", // Nueva clave para el grupo unificado
+                        type: "multiple",         // Permite selección múltiple
+                        label: "Procesamientos",  // Etiqueta unificada
+                        options: [
+                            // Opciones de Corte Base
+                            { symbol: "e", label: "Enteras" },
+                            { symbol: "c", label: "Cortadas" },
+                            { symbol: "fj", label: "Fajitas" },
+                            { symbol: "cub", label: "Cubos" },
+                            // Opciones de Procesamiento
+                            { symbol: "s/h", label: "Sin Hueso" },
+                            { symbol: "pp", label: "En Pulpa" },
+                            { symbol: "mol", label: "Molida" },
+                            // Opciones de Preparación
+                            { symbol: "asr", label: "Asar" },
+                            { symbol: "fr", label: "Freir" },
+                            { symbol: "mil", label: "Milanesa" },
+                            // Opciones de Extras
+                            { symbol: "s/p", label: "Sin Piel" }
+                        ]
+                    }
+                ],
+                prices: {
+                    "Publico": 100, "Cocina": 85, "Aliado": 85,
+                    // Por defecto, usa el precio público si no hay uno específico
+                    "Leal": 100, "Mayoreo": 100
+                }
+            },
+            "pp_pm": {
+                name: "Pulpa de Perniles",
+                displaySymbol: "PP_PM", // Simbología interna para subproducto
+                personalizations: [
+                    {
+                        key: "all_procesamientos",
+                        type: "multiple",
+                        label: "Procesamientos",
+                        options: [
+                            { symbol: "mol", label: "Molida" }
+                        ]
+                    }
+                ],
+                prices: {
+                    "Publico": 125,
+                    "Cocina": 125, "Aliado": 125, "Leal": 125, "Mayoreo": 125
+                }
+            },
+            "pg": {
+                name: "Pierna",
+                displaySymbol: "PG",
+                personalizations: [
+                    {
+                        key: "all_procesamientos",
+                        type: "multiple",
+                        label: "Procesamientos",
+                        options: [
+                            // Opciones de Corte Base
+                            { symbol: "e", label: "Entera" },
+                            { symbol: "c", label: "Cortada" },
+                            // Opciones de Procesamiento
+                            { symbol: "s/h", label: "Sin Hueso" },
+                            { symbol: "pp", label: "En Pulpa" },
+                            { symbol: "mol", label: "Molida" },
+                            // Opciones de Preparación
+                            { symbol: "asr", label: "Asar" },
+                            { symbol: "fr", label: "Freir" },
+                            { symbol: "mil", label: "Milanesa" },
+                            // Opciones de Extras
+                            { symbol: "s/p", label: "Sin Piel" }
+                        ]
+                    }
+                ],
+                prices: {
+                    "Publico": 105,
+                    "Cocina": 105, "Leal": 105, "Aliado": 105, "Mayoreo": 105
+                }
+            },
+            "msl": {
+                name: "Muslo",
+                displaySymbol: "MSL",
+                personalizations: [
+                    {
+                        key: "all_procesamientos",
+                        type: "multiple",
+                        label: "Procesamientos",
+                        options: [
+                            // Opciones de Corte Base
+                            { symbol: "e", label: "Entero" },
+                            { symbol: "c", label: "Cortado" },
+                            // Opciones de Procesamiento
+                            { symbol: "s/h", label: "Sin Hueso" },
+                            { symbol: "pp", label: "En Pulpa" },
+                            { symbol: "mol", label: "Molido" },
+                            // Opciones de Preparación
+                            { symbol: "asr", label: "Asar" },
+                            { symbol: "fr", label: "Freir" },
+                            { symbol: "mil", label: "Milanesa" },
+                            // Opciones de Extras
+                            { symbol: "s/p", label: "Sin Piel" }
+                        ]
+                    }
+                ],
+                prices: {
+                    "Publico": 100,
+                    "Cocina": 100, "Leal": 100, "Aliado": 100, "Mayoreo": 100
+                }
+            }
+        };
+
+        // Nueva estructura para tipos de precio sin iconos SVG
+        const priceTypes = [
+            { key: "Publico", label: "Público" },
+            { key: "Cocina", label: "Cocina" },
+            { key: "Leal", label: "Leal" },
+            { key: "Aliado", label: "Aliado" },
+            { key: "Mayoreo", label: "Mayoreo" }
+        ];
+        
+        // --- Variables de Estado Global ---
+        let currentProductKey = "pm"; // Producto seleccionado por defecto
+        let currentPriceType = "Publico"; // Tipo de precio seleccionado por defecto
+        let selectedPersonalizations = {}; // Almacena las personalizaciones seleccionadas
+
+        // --- Referencias a Elementos del DOM ---
+        const modalProductTitle = document.getElementById('modal-product-title');
+        const productOptionsContainer = document.getElementById('product-options-container');
+        const priceOptionsContainer = document.getElementById('price-options-container');
+        const quantityInput = document.getElementById('modal-quantity');
+        const costInput = document.getElementById('modal-cost');
+        const currentPriceDisplay = document.getElementById('current-price-display');
+        const procesamientosSection = document.getElementById('procesamientos-section');
+        const modalOverlay = document.querySelector('.modal-overlay');
+        const closeBtn = document.querySelector('.modal-close-btn');
+
+        // --- Funciones de Utilidad ---
+
+        // Función para obtener el precio de un producto y tipo de precio específicos
+        function getPriceForProductAndType(productKey, priceType) {
+            const product = productsData[productKey];
+            if (!product) return 0; // Retorna 0 o un valor por defecto si el producto no existe
+
+            let price = product.prices[priceType];
+            if (price === undefined || price === null || price === '-') {
+                price = product.prices["Publico"]; // Usa precio Público por defecto si el específico no existe
+            }
+            return parseFloat(price);
+        }
+
+        // Función para manejar grupos de botones de selección única (tipo radio)
+        function handleSingleSelectGroup(container) {
+            const buttons = container.querySelectorAll('.btn-variant');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+
+                    // Lógica específica para el grupo de productos
+                    if (container.id === 'product-options-container') {
+                        currentProductKey = button.dataset.optionValue;
+                        updateProductDisplay();
+                        renderProcesamientos(currentProductKey); // Renderiza personalizaciones al cambiar producto
+                        renderPriceTypeOptions(); // <-- REFRESCAR BOTONES DE TIPO DE PRECIO
+                        updatePriceDisplay();
+                        calculateRegistro(null); // Recalcula los inputs
+                    }
+                    // Lógica específica para el grupo de tipos de precio
+                    else if (container.id === 'price-options-container') {
+                        currentPriceType = button.dataset.optionValue;
+                        updatePriceDisplay();
+                        calculateRegistro(null); // Recalcula los inputs
+                    }
+                });
+            });
+        }
+
+        // Función para manejar grupos de botones de selección múltiple (tipo checkbox)
+        function handleMultipleSelectGroup(container) {
+            const buttons = container.querySelectorAll('.btn-variant');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    button.classList.toggle('active');
+                    const groupKey = container.dataset.groupKey;
+                    // Almacena un array con los símbolos de las opciones activas
+                    selectedPersonalizations[groupKey] = Array.from(container.querySelectorAll('.btn-variant.active'))
+                                                        .map(btn => btn.dataset.optionValue);
+                    // console.log(`Selección múltiple para ${groupKey}: ${selectedPersonalizations[groupKey].join(', ')}`);
+                });
+            });
+        }
+
+        // --- Funciones de Renderizado y Actualización ---
+
+        // RENDERIZA LOS BOTONES DE SELECCIÓN DE PRODUCTO
+        function renderProductOptions() {
+            productOptionsContainer.innerHTML = ''; // Limpiar el contenedor
+            Object.keys(productsData).forEach(key => {
+                const product = productsData[key];
+                const button = document.createElement('button');
+                button.className = 'btn-variant';
+                button.dataset.optionValue = key;
+                button.textContent = product.displaySymbol; // Mostrar el símbolo
+                if (key === currentProductKey) {
+                    button.classList.add('active'); // Activar el producto por defecto
+                }
+                productOptionsContainer.appendChild(button);
+            });
+            handleSingleSelectGroup(productOptionsContainer); // Adjuntar listeners
+        }
+
+        // RENDERIZA LOS BOTONES DE SELECCIÓN DE TIPO DE PRECIO (AHORA CON ETIQUETA Y PRECIO)
+        function renderPriceTypeOptions() {
+            priceOptionsContainer.innerHTML = ''; // Limpiar el contenedor
+            priceTypes.forEach(type => {
+                const button = document.createElement('button');
+                button.className = 'btn-variant';
+                button.dataset.optionValue = type.key; /* Usar type.key para el valor del data-attribute */
+                
+                // Obtener el precio para el producto actual y este tipo de precio
+                const priceValue = getPriceForProductAndType(currentProductKey, type.key);
+                const formattedPrice = priceValue.toFixed(2);
+
+                // Insertar la etiqueta y el precio formateado en el botón
+                button.innerHTML = `<span>${type.label}</span><span style="font-size: 0.9em;">$${formattedPrice}</span>`;
+                
+                if (type.key === currentPriceType) {
+                    button.classList.add('active'); // Activar el tipo de precio por defecto
+                }
+                priceOptionsContainer.appendChild(button);
+            });
+            handleSingleSelectGroup(priceOptionsContainer); // Adjuntar listeners
+        }
+
+        // ACTUALIZA EL TÍTULO DEL MODAL
+        function updateProductDisplay() {
+            const selectedProduct = productsData[currentProductKey];
+            modalProductTitle.textContent = selectedProduct ? selectedProduct.name : "Configurar Producto";
+        }
+
+        // RENDERIZA LA SECCIÓN UNIFICADA DE PROCESAMIENTOS
+        function renderProcesamientos(productKey) {
+            procesamientosSection.innerHTML = ''; // Limpiar personalizaciones anteriores
+            // Reiniciar personalizaciones seleccionadas, específicamente para el grupo unificado
+            selectedPersonalizations = {
+                all_procesamientos: [] // Inicializar como array vacío para selección múltiple
+            };
+
+            const product = productsData[productKey];
+
+            // Solo deberíamos tener un grupo de personalización llamado 'all_procesamientos'
+            if (product && product.personalizations.length > 0 && product.personalizations[0].key === 'all_procesamientos') {
+                const group = product.personalizations[0]; // Obtener el único grupo de procesamientos
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'personalization-group';
+                groupDiv.innerHTML = `
+                    <h4>${group.label}</h4>
+                    <div class="options-container" data-selection-type="${group.type}" data-group-key="${group.key}">
+                        ${group.options.map(opt => 
+                            // Usar opt.symbol para el texto del botón
+                            `<button class="btn-variant" data-option-value="${opt.symbol}">${opt.symbol}</button>`
+                        ).join('')}
+                    </div>
+                `;
+                procesamientosSection.appendChild(groupDiv);
+
+                // Adjuntar listeners solo al grupo de selección múltiple unificado
+                const container = procesamientosSection.querySelector('.options-container');
+                if (container && container.dataset.selectionType === 'multiple') {
+                    handleMultipleSelectGroup(container);
+                }
+            } else {
+                // Si no hay personalizaciones o la estructura no es la esperada, no renderizar nada.
+            }
+        }
+
+        // ACTUALIZA EL DISPLAY DEL PRECIO POR KG
+        function updatePriceDisplay() {
+            const product = productsData[currentProductKey];
+            let price = product.prices[currentPriceType];
+            if (price === undefined || price === null || price === '-') {
+                price = product.prices["Publico"]; // Usar precio Público por defecto si no hay uno específico
+            }
+            currentPriceDisplay.textContent = `$${parseFloat(price).toFixed(2)} / kg (${currentPriceType})`;
+            return parseFloat(price);
+        }
+
+        // CALCULA Y RELLENA LOS CAMPOS DE REGISTRO
+        function calculateRegistro(changedInput) {
+            const pricePerKg = updatePriceDisplay(); // Obtiene el precio actual y lo muestra
+            
+            // Usar parseFloat() para obtener el valor numérico, o 0 si no es un número válido o está vacío.
+            let quantity = parseFloat(quantityInput.value) || 0;
+            let cost = parseFloat(costInput.value) || 0;
+
+            if (isNaN(pricePerKg) || pricePerKg <= 0) {
+                // Si el precio no es válido, limpiar y salir (dejar placeholders)
+                quantityInput.value = ''; 
+                costInput.value = ''; 
+                return;
+            }
+
+            // Si se cambió la cantidad, calcular el costo
+            if (changedInput === quantityInput) {
+                cost = quantity * pricePerKg;
+                costInput.value = cost.toFixed(2);
+            }
+            // Si se cambió el costo, calcular la cantidad
+            else if (changedInput === costInput) {
+                quantity = cost / pricePerKg;
+                quantityInput.value = quantity.toFixed(2);
+            }
+            // Si no se especificó qué input cambió (ej., al cambiar producto/precio),
+            // y hay un valor en cantidad (o costo), recalcular el otro.
+            else {
+                if (quantity > 0) {
+                    cost = quantity * pricePerKg;
+                    costInput.value = cost.toFixed(2);
+                } else if (cost > 0) {
+                    quantity = cost / pricePerKg;
+                    costInput.value = quantity.toFixed(2); /* Corregido: asigna a quantityInput.value */
+                }
+                // Si ambos son 0 o vacíos, no se hace nada y quedan como placeholders
+            }
+            // Asegurarse de que los valores se muestren como cadenas vacías si son 0 y el usuario no los ha tocado.
+            // Esto se maneja mejor con placeholders y la lógica de `parseFloat(...) || 0`.
+        }
+
+        // --- Event Listeners Iniciales y Carga ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar las secciones
+            renderProductOptions();
+            renderPriceTypeOptions(); // Renderizar tipos de precio con etiquetas y valores
+            updateProductDisplay(); // Actualiza el título del modal al inicio
+            renderProcesamientos(currentProductKey); // Renderiza personalizaciones del producto por defecto
+            updatePriceDisplay(); // Muestra el precio inicial
+
+            // Llamar a calculateRegistro(null) para asegurar que los inputs reflejen el precio actual
+            // pero sin forzar un valor si están vacíos.
+            calculateRegistro(null); 
+
+            // Listeners para los inputs de registro
+            quantityInput.addEventListener('input', () => calculateRegistro(quantityInput));
+            costInput.addEventListener('input', () => calculateRegistro(costInput));
+
+            // Lógica para cerrar el modal
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    modalOverlay.style.display = 'none'; 
+                });
+            }
+            if (modalOverlay) {
+                modalOverlay.addEventListener('click', (event) => {
+                    if (event.target === modalOverlay) { 
+                        modalOverlay.style.display = 'none';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
+
