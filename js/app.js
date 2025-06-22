@@ -87,25 +87,10 @@ class PosApp {
     #createMessageBox() {
         const messageBox = document.createElement('div');
         messageBox.id = 'message-box';
-        // Estilos básicos para la caja de mensajes. Se pueden refinar con clases CSS.
-        messageBox.style.cssText = `
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #333; /* Color de fondo por defecto */
-            color: white; /* Color del texto por defecto */
-            padding: 15px 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
-            display: none; /* Oculto por defecto */
-            opacity: 0; /* Opacidad para la transición */
-            transition: opacity 0.3s ease-in-out;
-            text-align: center;
-            min-width: 250px;
-            font-family: 'Inter', sans-serif; /* Usar Inter como se indica en las instrucciones */
-        `;
+        // Aplicar la clase base en lugar de estilos inline
+        messageBox.classList.add('message-box');
+        // Los estilos específicos de posición, sombra, etc., ahora están en la clase .message-box en style.css
+
         document.body.appendChild(messageBox);
         return messageBox;
     }
@@ -123,19 +108,14 @@ class PosApp {
 
         msgBox.textContent = message;
         // Limpiar clases de tipo previas y añadir la actual para estilizado dinámico.
-        msgBox.className = ''; // Resetea las clases.
-        msgBox.classList.add('message-box'); // Clase base (puedes definirla en tu CSS).
-        msgBox.classList.add(`message-box-${type}`); // Clase específica para el tipo (ej: message-box-error).
+        msgBox.className = 'message-box'; // Resetea las clases y añade la base.
+        msgBox.classList.add(`message-box-${type}`); // Añade la clase específica para el tipo (ej: message-box-error).
 
-        // Estilos inline básicos según el tipo de mensaje. Preferiblemente, define estos en CSS.
-        if (type === 'error') {
-            msgBox.style.backgroundColor = '#dc3545'; // Rojo
-        } else if (type === 'success') {
-            msgBox.style.backgroundColor = '#28a745'; // Verde
-        } else {
-            msgBox.style.backgroundColor = '#007bff'; // Azul (info)
-        }
-        msgBox.style.color = 'white'; // Color del texto claro.
+        // Eliminar estilos inline de color, ahora definidos en las clases message-box-type
+        // msgBox.style.backgroundColor = '#dc3545'; // Rojo
+        // msgBox.style.backgroundColor = '#28a745'; // Verde
+        // msgBox.style.backgroundColor = '#007bff'; // Azul (info)
+        // msgBox.style.color = 'white'; // Color del texto claro.
 
         msgBox.style.display = 'block'; // Muestra el elemento.
         // Pequeño retraso para permitir que 'display: block' se aplique antes de iniciar la transición de opacidad.
@@ -212,8 +192,13 @@ class PosApp {
 
             // Inserta el HTML de la vista en el contenedor principal de la aplicación.
             this.#ui.appContainer.innerHTML = await response.text();
-            // Ajusta la visibilidad del footer inferior de la POS según la vista actual.
-            this.#ui.posFooter.style.display = (viewName === 'venta') ? 'flex' : 'none';
+            // Ajusta la visibilidad del footer inferior de la POS según la vista actual usando una clase.
+            if (this.#ui.posFooter) {
+                 this.#ui.posFooter.classList.toggle('pos-footer-visible', viewName === 'venta');
+                 // Eliminar el estilo inline anterior
+                 // this.#ui.posFooter.style.display = (viewName === 'venta') ? 'flex' : 'none';
+            }
+
 
             // Ejecuta la lógica post-carga una vez que el HTML está en el DOM.
             this.#afterViewLoad(viewName);
@@ -400,17 +385,23 @@ class PosApp {
         // Actualiza todas las clases del badge para aplicar el estilo correcto.
         this.#ui.clientTypeBadge.className = `badge ${badgeClass}`;
 
-        // Lógica para mostrar/ocultar el input de búsqueda de cliente o el cliente seleccionado.
+        // Lógica para mostrar/ocultar el input de búsqueda de cliente o el div de cliente seleccionado usando clases.
         if (nombre !== DEFAULT_CUSTOMER.nombre) {
-            this.#ui.selectedCustomerDiv.style.display = 'flex'; // Muestra el div del cliente seleccionado.
-            this.#ui.customerSearchInput.style.display = 'none'; // Oculta el input de búsqueda.
+            this.#ui.selectedCustomerDiv.classList.add('customer-selected'); // Muestra el div del cliente seleccionado.
+            this.#ui.customerSearchInput.classList.remove('customer-search-active'); // Oculta el input de búsqueda.
+            // Eliminar estilos inline anteriores
+            // this.#ui.selectedCustomerDiv.style.display = 'flex';
+            // this.#ui.customerSearchInput.style.display = 'none';
         } else {
-            this.#ui.selectedCustomerDiv.style.display = 'none'; // Oculta el div del cliente seleccionado.
-            this.#ui.customerSearchInput.style.display = 'block'; // Muestra el input de búsqueda.
+            this.#ui.selectedCustomerDiv.classList.remove('customer-selected'); // Oculta el div del cliente seleccionado.
+            this.#ui.customerSearchInput.classList.add('customer-search-active'); // Muestra el input de búsqueda.
+            // Eliminar estilos inline anteriores
+            // this.#ui.selectedCustomerDiv.style.display = 'none';
+            // this.#ui.customerSearchInput.style.display = 'block';
+
             this.#ui.customerSearchInput.value = ''; // Limpia el valor del input de búsqueda.
         }
     }
-
 
     // =========================================================================
     // --- LÓGICA DEL MODAL CORREGIDA Y REFINADA ---
@@ -454,8 +445,13 @@ class PosApp {
      */
     #renderModal() {
         if (!this.#state.modal.visible) {
-            this.#ui.modalOverlay.style.display = 'none';
-            this.#ui.modalOverlay.innerHTML = '';
+            // Oculta el overlay usando una clase
+            if (this.#ui.modalOverlay) {
+                this.#ui.modalOverlay.classList.remove('modal-visible');
+                // Eliminar estilo inline anterior
+                // this.#ui.modalOverlay.style.display = 'none';
+            }
+            this.#ui.modalOverlay.innerHTML = ''; // Limpia el contenido
             return;
         }
         if (!this.#data.modalTemplate) {
@@ -464,7 +460,13 @@ class PosApp {
         }
 
         this.#ui.modalOverlay.innerHTML = this.#data.modalTemplate;
-        this.#ui.modalOverlay.style.display = 'flex';
+        // Muestra el overlay usando una clase
+        if (this.#ui.modalOverlay) {
+             this.#ui.modalOverlay.classList.add('modal-visible');
+             // Eliminar estilo inline anterior
+             // this.#ui.modalOverlay.style.display = 'flex';
+        }
+
 
         this.#cacheModalUI();
 
@@ -706,10 +708,16 @@ class PosApp {
         // --- LÓGICA CLAVE ---
         // Si hay una o menos opciones, no tiene sentido mostrar la sección.
         if (relatedProducts.length <= 1) {
-            this.#ui.modalProductSection.style.display = 'none'; // Ocultamos toda la sección
+            // Ocultamos toda la sección usando una clase
+            this.#ui.modalProductSection.classList.add('product-options-hidden');
+            // Eliminar estilo inline anterior
+            // this.#ui.modalProductSection.style.display = 'none';
         } else {
-            // Si hay más de una opción, mostramos la sección y renderizamos los botones.
-            this.#ui.modalProductSection.style.display = 'block';
+            // Si hay más de una opción, mostramos la sección usando una clase y renderizamos los botones.
+            this.#ui.modalProductSection.classList.remove('product-options-hidden');
+            // Eliminar estilo inline anterior
+            // this.#ui.modalProductSection.style.display = 'block';
+
             this.#ui.productOptionsContainer.innerHTML = relatedProducts.map(prod => {
                 const isActive = prod.id === productoActivo.id;
                 return `<button class="btn-variant ${isActive ? 'active' : ''}" data-product-id="${prod.id}">${prod.id.toUpperCase()}</button>`;
@@ -749,10 +757,12 @@ class PosApp {
             const isActive = type.key === this.#state.modal.precioActivo;
             const displayPrice = precio !== null ? `$${precio.toFixed(2)}` : '-';
 
+            // Eliminar estilo inline del span de precio
+            // <span style="font-size: 0.9em;">${displayPrice}</span>
             return `
                 <button class="btn-variant ${isActive ? 'active' : ''}" data-price-type="${type.key}">
                     <span>${type.label}</span>
-                    <span style="font-size: 0.9em;">${displayPrice}</span>
+                    <span class="price-display-small">${displayPrice}</span>
                 </button>
             `;
         }).join('');
@@ -1069,7 +1079,11 @@ class PosApp {
         if (!this.#ui.searchResultsContainer || !this.#ui.customerSearchInput) return;
 
         this.#ui.searchResultsContainer.innerHTML = ''; // Limpia resultados anteriores.
-        this.#ui.searchResultsContainer.style.display = 'none'; // Oculta la lista de resultados por defecto.
+        // Oculta la lista de resultados por defecto usando una clase
+        this.#ui.searchResultsContainer.classList.remove('search-results-visible');
+        // Eliminar estilo inline anterior
+        // this.#ui.searchResultsContainer.style.display = 'none';
+
 
         // Solo realiza la búsqueda si la consulta tiene al menos la longitud mínima.
         if (query.length < MIN_CUSTOMER_SEARCH_LENGTH) return;
@@ -1095,7 +1109,10 @@ class PosApp {
                     }
                 });
             });
-            this.#ui.searchResultsContainer.style.display = 'block'; // Muestra la lista de resultados.
+            // Muestra la lista de resultados usando una clase
+            this.#ui.searchResultsContainer.classList.add('search-results-visible');
+            // Eliminar estilo inline anterior
+            // this.#ui.searchResultsContainer.style.display = 'block';
         }
     }
 
@@ -1107,7 +1124,11 @@ class PosApp {
     #selectCustomer(cliente) {
         this.#state.clienteActual = { ...cliente }; // Actualiza el cliente actual en el estado (copia profunda).
         if (this.#ui.searchResultsContainer) {
-            this.#ui.searchResultsContainer.style.display = 'none'; // Oculta los resultados de búsqueda.
+            // Oculta los resultados de búsqueda usando una clase
+            this.#ui.searchResultsContainer.classList.remove('search-results-visible');
+            // Eliminar estilo inline anterior
+            // this.#ui.searchResultsContainer.style.display = 'none';
+
             this.#ui.customerSearchInput.value = ''; // Limpia el input de búsqueda.
         }
         this.#renderCustomerInfo(); // Actualiza la sección de información del cliente en la UI.

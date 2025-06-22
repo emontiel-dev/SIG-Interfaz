@@ -31,6 +31,7 @@
     --sombra-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
     --sombra-md: 0 4px 12px rgba(0, 0, 0, 0.06);
     --transicion-suave: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    --radio-borde-s: 6px;
     --radio-borde-m: 10px;
     --radio-borde-l: 16px;
     --radio-borde-pill: 50rem;
@@ -94,13 +95,294 @@ tbody tr:last-child td { border-bottom: none; }
 .product-btn span { font-size: 1.4em; font-weight: 700; color: var(--amarillo-polleria); }
 .pos-footer { position: fixed; bottom: 0; left: 0; right: 0; background: var(--gris-elemento-claro); padding: var(--espacio-m); border-top: 1px solid var(--gris-borde-sutil); box-shadow: 0 -4px 12px rgba(0,0,0,.06); display: flex; gap: var(--espacio-m); z-index: 1000; }
 #product-modal-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; justify-content: center; align-items: center; z-index: 2000; padding: var(--espacio-m); }
-.product-modal-content { background-color: var(--blanco); border-radius: var(--radio-borde-l); box-shadow: var(--sombra-md); width: 100%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
-.modal-header { padding: var(--espacio-m) var(--espacio-l); border-bottom: 1px solid var(--gris-borde-sutil); display: flex; justify-content: space-between; align-items: center; }
-.modal-header h3 { margin: 0; }
-.modal-body { padding: var(--espacio-l); overflow-y: auto; }
-.modal-footer { padding: var(--espacio-m) var(--espacio-l); border-top: 1px solid var(--gris-borde-sutil); display: flex; gap: var(--espacio-m); }
-.personalization-group { margin-bottom: var(--espacio-l); border: 1px solid var(--gris-borde-sutil); border-radius: var(--radio-borde-m); padding: var(--espacio-m); }
-.personalization-group h4 { margin-top: 0; margin-bottom: var(--espacio-s); font-size: 1em; color: var(--gris-texto-secundario); font-weight: 600; }
-.checkbox-label { display: flex; align-items: center; padding: var(--espacio-s); border-radius: var(--radio-borde-m); cursor: pointer; margin-bottom: var(--espacio-xs); }
-.checkbox-label:hover { background-color: var(--gris-hover-sutil); }
-.checkbox-label input { margin-right: var(--espacio-s); width: 1.2em; height: 1.2em; accent-color: var(--amarillo-polleria); }
+/* =========================================================================== */
+/* 16. components/_modal.css                                                   */
+/* =========================================================================== */
+
+/* Animación del modal */
+@keyframes slide-up {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Contenedor del overlay del modal */
+#product-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    padding: var(--espacio-m);
+    /* Controlado por JS: display: none; */
+}
+
+/* Contenedor principal del contenido del modal */
+.modal-content {
+    background-color: var(--blanco); /* Usar variable de style.css */
+    border-radius: var(--radio-borde-l); /* Usar variable de style.css */
+    box-shadow: var(--sombra-md); /* Usar variable de style.css */
+    width: 100%;
+    max-width: 400px;
+    margin: 0 var(--espacio-m);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: slide-up 0.3s ease-out; /* Aplicamos la animación */
+    max-height: 90vh; /* Ajuste para pantallas */
+}
+
+/* Cabecera del modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--espacio-m) var(--espacio-l);
+    border-bottom: 1px solid var(--gris-borde-sutil); /* Usar variable de style.css */
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--negro-azabache); /* Usar variable de style.css */
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--gris-texto-secundario); /* Usar variable de style.css */
+    padding: 0;
+    line-height: 1;
+}
+
+/* Cuerpo del modal (con scroll) */
+.modal-body {
+    padding: var(--espacio-l);
+    overflow-y: auto;
+    max-height: 80vh; /* Mantener esto por si el contenido excede */
+}
+
+/* Pie de página del modal */
+.modal-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--espacio-m);
+    padding: var(--espacio-m) var(--espacio-l);
+    border-top: 1px solid var(--gris-borde-sutil); /* Usar variable de style.css */
+    background-color: var(--gris-fondo-claro); /* Usar variable de style.css */
+}
+
+/* Grupo de personalización dentro del modal */
+.personalization-group {
+    border: 1px solid var(--gris-borde-sutil); /* Usar variable de style.css */
+    border-radius: var(--radio-borde-m);
+    padding: var(--espacio-m);
+    padding-top: var(--espacio-l); /* Espacio para el título flotante */
+    margin-bottom: var(--espacio-l);
+    position: relative;
+}
+
+/* Ajuste para el último grupo de personalización */
+.modal-body > .personalization-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Título flotante del grupo de personalización */
+.personalization-group h4 {
+    position: absolute;
+    top: -12px; /* Ajuste para que flote sobre el borde */
+    left: var(--espacio-m);
+    background-color: var(--blanco); /* Fondo para cubrir el borde */
+    padding: 0 8px;
+    margin: 0;
+    font-size: 1rem;
+    color: var(--negro-azabache); /* Usar variable de style.css */
+    z-index: 1; /* Asegura que esté sobre el borde */
+}
+
+/* Contenedor de opciones (botones de variante) */
+.options-container {
+    display: flex;
+    gap: 8px; /* Espacio entre botones */
+    flex-wrap: wrap;
+}
+
+/* Botón de variante (producto, precio, procesamiento) */
+.btn-variant {
+    flex-grow: 1;
+    text-align: center;
+    background-color: var(--gris-fondo-claro); /* Usar variable de style.css */
+    color: var(--negro-azabache); /* Usar variable de style.css */
+    padding: 10px 12px;
+    border: 1px solid var(--gris-borde-input); /* Usar variable de style.css */
+    border-radius: var(--radio-borde-m); /* Usar variable de style.css */
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transicion-rapida); /* Usar variable de style.css */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.3;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-variant:hover {
+    background-color: var(--gris-hover-sutil); /* Usar variable de style.css */
+}
+
+.btn-variant:focus-visible {
+    outline: none;
+    border-color: var(--amarillo-polleria); /* Usar variable de style.css */
+    box-shadow: 0 0 0 2px var(--amarillo-polleria-focus-ring); /* Usar variable de style.css */
+}
+
+.btn-variant.active {
+    background-color: var(--amarillo-polleria); /* Usar variable de style.css */
+    border-color: var(--amarillo-polleria-hover); /* Usar variable de style.css */
+    color: var(--texto-sobre-amarillo); /* Usar variable de style.css */
+    font-weight: 600;
+}
+
+.btn-variant span {
+    display: block;
+}
+
+.btn-variant span:first-child {
+    font-weight: 600;
+}
+
+/* Contenedor para inputs en línea (Cantidad/Costo) */
+.input-group-inline {
+    display: flex;
+    gap: var(--espacio-m);
+}
+
+.input-group-inline .form-group {
+    flex: 1;
+    margin-bottom: 0;
+}
+
+/* Estilos específicos para inputs de número en el modal */
+.form-group input[type="number"]#modal-quantity,
+.form-group input[type="number"]#modal-cost {
+    width: 100%;
+    padding: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid var(--gris-borde-input); /* Usar variable de style.css */
+    border-radius: var(--radio-borde-s); /* Usar variable de style.css */
+    box-sizing: border-box;
+    -moz-appearance: textfield;
+}
+
+.form-group input[type="number"]#modal-quantity::-webkit-outer-spin-button,
+.form-group input[type="number"]#modal-quantity::-webkit-inner-spin-button,
+.form-group input[type="number"]#modal-cost::-webkit-outer-spin-button,
+.form-group input[type="number"]#modal-cost::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-group input[type="number"]#modal-quantity:focus-visible,
+.form-group input[type="number"]#modal-cost:focus-visible {
+    outline: none;
+    border-color: var(--amarillo-polleria); /* Usar variable de style.css */
+    box-shadow: 0 0 0 2px var(--amarillo-polleria-focus-ring); /* Usar variable de style.css */
+}
+
+/* Clase para centrar botones en una sola fila */
+.single-row-center {
+    justify-content: center; /* Centra los elementos flex */
+}
+
+.single-row-center .btn-variant {
+    flex-grow: 0; /* Evita que crezcan */
+    min-width: 100px; /* Ancho mínimo para que no se hagan muy pequeños */
+}
+
+/* =========================================================================== */
+/* 17. components/_message-box.css                                             */
+/* =========================================================================== */
+.message-box {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: var(--radio-borde-m); /* Usar variable de style.css */
+    box-shadow: var(--sombra-md); /* Usar variable de style.css */
+    z-index: 1000;
+    display: none; /* Oculto por defecto, controlado por JS */
+    opacity: 0; /* Opacidad para la transición */
+    transition: opacity 0.3s ease-in-out;
+    text-align: center;
+    min-width: 250px;
+    font-family: var(--fuente-principal); /* Usar variable de style.css */
+    color: var(--blanco); /* Color de texto por defecto */
+}
+
+.message-box-info {
+    background-color: var(--azul-info); /* Usar variable de style.css */
+}
+
+.message-box-success {
+    background-color: var(--verde-exito); /* Usar variable de style.css */
+}
+
+.message-box-error {
+    background-color: var(--rojo-peligro-texto); /* Usar variable de style.css */
+}
+
+/* =========================================================================== */
+/* 18. utilities/_visibility.css                                               */
+/* =========================================================================== */
+
+/* Clases para controlar la visibilidad con display */
+.d-none { display: none !important; }
+.d-block { display: block !important; }
+.d-flex { display: flex !important; }
+
+/* Clases específicas para elementos controlados por JS */
+.pos-footer-visible {
+    display: flex !important; /* Asegura que se muestre como flex */
+}
+
+.modal-visible {
+    display: flex !important; /* Asegura que se muestre como flex */
+}
+
+.customer-selected {
+    display: flex !important; /* Muestra el div del cliente seleccionado */
+}
+
+.customer-search-active {
+    display: block !important; /* Muestra el input de búsqueda */
+}
+
+.search-results-visible {
+    display: block !important; /* Muestra los resultados de búsqueda */
+}
+
+.product-options-hidden {
+    display: none !important; /* Oculta la sección de opciones de producto */
+}
+
+/* Clase para el span de precio pequeño en botones de variante */
+.price-display-small {
+    font-size: 0.9em;
+}
