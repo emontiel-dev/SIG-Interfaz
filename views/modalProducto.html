@@ -1,0 +1,124 @@
+<!-- Archivo: views/modalProducto.html (Versión como fragmento) -->
+<!-- No hay <!DOCTYPE>, <html>, <head>, o <body>. Solo el componente. -->
+
+<!-- Estilos del componente. Usamos <style> para mantenerlos encapsulados -->
+<!-- y que se carguen junto con el fragmento. -->
+<style>
+    /* --- VARIABLES DE COLOR Y DISEÑO --- */
+    :root {
+        /* ... (Las variables se mantienen igual que antes) ... */
+        --color-primario: #ffffff;
+        --color-secundario: #f8f9fa;
+        --color-texto-principal: #212529;
+        --color-texto-secundario: #6c757d;
+        --color-borde: #dee2e6;
+        --color-borde-foco: #ffc107;
+        --color-amarillo-polleria: #ffc107;
+        --color-amarillo-polleria-hover: #e0a800;
+        --color-sombra: rgba(0, 0, 0, 0.1);
+        --espacio-m: 16px;
+        --espacio-l: 24px;
+        --radio-borde: 12px;
+    }
+
+    /* La animación del modal. La definimos aquí para que esté disponible */
+    /* cuando se inyecte el fragmento. */
+    @keyframes slide-up {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* --- CUERPO DEL MODAL --- */
+    .modal-content {
+        background-color: var(--color-primario);
+        border-radius: var(--radio-borde);
+        box-shadow: 0 4px 20px var(--color-sombra);
+        width: 100%;
+        max-width: 400px;
+        margin: 0 var(--espacio-m);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        animation: slide-up 0.3s ease-out; /* Aplicamos la animación */
+    }
+    
+    /* ... (El resto de los estilos CSS se mantienen exactamente igual que antes) ... */
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: var(--espacio-m) var(--espacio-l); border-bottom: 1px solid var(--color-borde); }
+    .modal-header h2 { margin: 0; font-size: 1.25rem; }
+    .modal-close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--color-texto-secundario); padding: 0; line-height: 1;}
+    .modal-footer { display: grid; grid-template-columns: 1fr 1fr; gap: var(--espacio-m); padding: var(--espacio-m) var(--espacio-l); border-top: 1px solid var(--color-borde); background-color: var(--color-secundario); }
+    .modal-body { padding: var(--espacio-l); overflow-y: auto; max-height: 80vh; }
+    .personalization-group { border: 1px solid var(--color-borde); border-radius: var(--radio-borde); padding: var(--espacio-m); padding-top: var(--espacio-l); margin-bottom: var(--espacio-l); position: relative; }
+    .modal-body > .personalization-group:last-child { margin-bottom: 0; }
+    .personalization-group h4 { position: absolute; top: -12px; left: var(--espacio-m); background-color: var(--color-primario); padding: 0 8px; margin: 0; font-size: 1rem; color: var(--color-texto-principal); }
+    .options-container { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-variant { flex-grow: 1; text-align: center; background-color: var(--color-secundario); color: var(--color-texto-principal); padding: 10px 12px; border: 1px solid var(--color-borde); border-radius: 8px; cursor: pointer; font-size: 0.9rem; font-weight: 500; transition: all 0.2s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1.3; }
+    .btn-variant:hover { background-color: #e9ecef; }
+    .btn-variant:focus-visible { outline: none; border-color: var(--color-borde-foco); box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.5); }
+    .btn-variant.active { background-color: var(--color-amarillo-polleria); border-color: var(--color-amarillo-polleria-hover); font-weight: 600; }
+    .btn-variant span { display: block; }
+    .btn-variant span:first-child { font-weight: 600; }
+    .input-group-inline { display: flex; gap: var(--espacio-m); }
+    .input-group-inline .form-group { flex: 1; margin-bottom: 0; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 0.9rem; color: var(--color-texto-secundario); }
+    .form-group input[type="number"] { width: 100%; padding: 12px; font-size: 1.1rem; font-weight: 600; text-align: center; border: 1px solid var(--color-borde); border-radius: 8px; box-sizing: border-box; -moz-appearance: textfield; }
+    .form-group input[type="number"]::-webkit-outer-spin-button, .form-group input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .form-group input[type="number"]:focus { outline: none; border-color: var(--color-borde-foco); box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.5); }
+    .btn { padding: 12px 20px; font-size: 1rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; transition: all 0.2s ease; }
+    .btn-secondary { background-color: #e9ecef; color: var(--color-texto-principal); border: 1px solid #ced4da; }
+    .btn-secondary:hover { background-color: #dee2e6; }
+    .btn-primary { background-color: var(--color-amarillo-polleria); color: var(--color-texto-principal); }
+    .btn-primary:hover { background-color: var(--color-amarillo-polleria-hover); }
+    .single-row-center { justify-content: left; }
+    .single-row-center .btn-variant { flex-grow: 0; min-width: 100px; }
+</style>
+
+<!-- Contenedor principal del componente del modal -->
+<div class="modal-content">
+    <header class="modal-header">
+        <h2 id="modal-product-title"></h2> 
+        <button class="modal-close-btn" title="Cerrar" aria-label="Cerrar">×</button>
+    </header>
+
+    <main class="modal-body">
+        
+        <div class="personalization-group" id="modal-product-section">
+            <h4>Opciones</h4>
+            <div class="options-container" id="product-options-container"></div>
+        </div>
+
+        <div class="personalization-group">
+            <h4>Precios</h4>
+            <div class="options-container" id="price-options-container"></div>
+        </div>
+
+        <div class="personalization-group">
+            <h4>Registro</h4>
+            <div class="input-group-inline">
+                <div class="form-group">
+                    <label for="modal-quantity">Cantidad</label>
+                    <!-- Updated step and placeholder for weight precision -->
+                    <input type="number" id="modal-quantity" placeholder="0.000" step="0.001">
+                </div>
+                <div class="form-group">
+                    <label for="modal-cost">Costo</label>
+                    <input type="number" id="modal-cost" placeholder="0.00" step="0.01">
+                </div>
+            </div>
+        </div>
+
+        <div id="procesamientos-section"></div>
+        
+    </main>
+
+    <footer class="modal-footer">
+        <button class="btn btn-secondary">Cancelar</button>
+        <button class="btn btn-primary">Añadir al Pedido</button>
+    </footer>
+</div>
