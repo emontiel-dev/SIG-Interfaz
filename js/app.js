@@ -1129,4 +1129,3 @@ class PosApp {
 
 // Inicializa la aplicación cuando el DOM (Document Object Model) esté completamente cargado.
 document.addEventListener('DOMContentLoaded', () => new PosApp());
-
